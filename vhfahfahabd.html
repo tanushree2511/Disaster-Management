@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Disaster Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #f5f6fa;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #0f3460;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: width 0.3s;
+        }
+
+        .sidebar:hover {
+            width: 300px;
+        }
+
+        .sidebar h2 {
+            margin: 0;
+            margin-bottom: 30px;
+            font-size: 20px;
+            text-align: center;
+            color: #f39c12;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #162447;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: #e94560;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .content h1 {
+            margin-top: 0;
+            color: #f39c12;
+        }
+
+        .map-container {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .map {
+            width: 100%;
+            height: 450px;
+            background-color: #0f3460;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert-level {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert-level p {
+            margin: 5px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 20px;
+        }
+
+        .card {
+            background-color: #162447;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #e94560;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+
+        .news-section {
+            margin-top: 20px;
+        }
+
+        .news-item {
+            background-color: #162447;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .news-item h3 {
+            margin-top: 0;
+        }
+
+        .news-item p {
+            margin: 5px 0;
+        }
+
+        /* Add unique icons or graphics using CSS */
+        .icon {
+            font-size: 30px;
+            color: #f39c12;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-fire-alt icon"></i>Disaster Management</h2>
+        <ul>
+            <li>Dashboard</li>
+            <li>Global Alerts</li>
+            <li>Incident Reports</li>
+            <li>Resource Allocation</li>
+            <li>Emergency Contacts</li>
+            <li>Settings</li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Real-Time Disaster Management</h1>
+        <div class="map-container">
+            <div id="map" class="map"></div>
+            <div class="alert-level">
+                <h3>Alert Levels</h3>
+                <p>Red: High Alert</p>
+                <p>Orange: Moderate Alert</p>
+                <p>Yellow: Low Alert</p>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h2>Active Disasters</h2>
+                <canvas id="disasterChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>Resource Status</h2>
+                <canvas id="resourceChart"></canvas>
+            </div>
+            <div class="card">
+                <h2>Risk Analysis</h2>
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+        <div class="news-section">
+            <div class="news-item">
+                <h3>Latest Updates</h3>
+                <p>Earthquake hits coastal region of Japan, triggering tsunami warnings.</p>
+            </div>
+            <div class="news-item">
+                <h3>Resource Deployment</h3>
+                <p>Rescue teams deployed to Bangladesh following severe flooding.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet/dist/leaflet.css">
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Function to fetch and display disaster data on the map
+        function fetchDisasterData() {
+            axios.get('https://api.reliefweb.int/v1/reports?appname=disaster-dashboard')
+                .then(response => {
+                    let reports = response.data.data;
+                    reports.forEach(report => {
+                        let coordinates = report.fields.primary_country.location.latlon;
+                        let marker = L.marker(coordinates).addTo(map)
+                            .bindPopup(`<b>${report.fields.title}</b><br>${report.fields.primary_country.name}`)
+                            .openPopup();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching disaster data:', error);
+                });
+        }
+
+        // Animated charts using Chart.js
+        function renderCharts() {
+            const disasterCtx = document.getElementById('disasterChart').getContext('2d');
+            const resourceCtx = document.getElementById('resourceChart').getContext('2d');
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+
+            new Chart(disasterCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Earthquake', 'Flood', 'Cyclone', 'Wildfire'],
+                    datasets: [{
+                        label: 'Active Disasters',
+                        data: [5, 3, 2, 4],
+                        backgroundColor: ['#e74c3c', '#3498db', '#2ecc71', '#e67e22']
+                    }]
+                }
+            });
+
+            new Chart(resourceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Deployed'],
+                    datasets: [{
+                        label: 'Resource Status',
+                        data: [200, 150],
